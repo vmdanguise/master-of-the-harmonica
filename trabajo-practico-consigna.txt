@@ -1,0 +1,42 @@
+Cómo completar esta planilla	
+Redes Neuronales y Deep Learning · Maestría en Inteligencia Artificial · Universidad de Palermo	
+	
+Lo básico	
+Una fila por grupo	Buscá la primera fila celeste vacía y completala. No hace falta avisarme: yo la veo.
+Grupos de 4	Idealmente cuatro personas, hasta cinco si no cierran los números. La columna del integrante 5 puede quedar vacía.
+Antes de la clase 6	La idea es que para entonces tengan el tema definido y cargado acá.
+Se puede cambiar	Si el tema o el dataset cambian, editá tu fila. Es normal que el título final no sea el de hoy.
+	
+Qué va en cada columna	
+Grupo	Un número por grupo. Ponelo vos cuando agregues tu fila.
+Integrante 1	Apellido, Nombre
+Integrante 2	Apellido, Nombre
+Integrante 3	Apellido, Nombre
+Integrante 4	Apellido, Nombre
+Integrante 5	Opcional. Los grupos son de 4 y hasta 5.
+	
+Mail de contacto	Mail de una sola persona del grupo, para consultas puntuales.
+Título del trabajo	Puede cambiar más adelante; poné el que tengas hoy.
+Descripción breve	Una o dos líneas: qué problema resuelven, con qué entrada y qué salida.
+Red a utilizar	Ej.: CNN desde cero, ResNet50 con fine-tuning, LSTM, Transformer.
+Dataset a utilizar	Nombre y origen. Si es propio, indicalo y contá cómo lo consiguieron.
+Link al repositorio	Un repositorio de GitHub por grupo, con el desarrollo y el informe.
+	
+Las dos columnas coral	
+Estado	La completo yo: Pendiente cuando todavía no la miré, Aprobado cuando pueden avanzar, A revisar si quiero charlar algo con el grupo.
+Comentarios	Ahí les dejo observaciones. Revisen su fila de tanto en tanto.
+	
+El repositorio	
+Uno por grupo	Cada grupo crea su propio repositorio en GitHub. No es un repositorio compartido entre todos los trabajos.
+Qué va adentro	El desarrollo (notebooks o scripts) y el informe, antes del cierre del curso.
+README	Con las instrucciones para reproducir el trabajo, las versiones de las librerías y las semillas fijadas.
+El dataset	Si es público, el link y su licencia. Si no lo pueden compartir, una descripción de cómo está armado.
+	
+Consultas	
+Por el campus	Las consultas sobre el trabajo y sobre la materia van por el foro del campus, así la respuesta le llega a todos.
+Podés compartir avances	Si ya arrancaron y quieren mostrarme cómo va, bienvenido: pasenme el link cuando quieran.
+
+
+ejemplo para llenar y elegir tema
+
+0	Ejemplo, Ana	Ejemplo, Bruno	Ejemplo, Carla	Ejemplo, Diego		ana.ejemplo@mail.com	Detección de fallas en rodamientos a partir del sonido del motor	Clasificación binaria (normal / con falla) sobre grabaciones de 2 s, convertidas a espectrograma log-mel.	CNN 2D sobre espectrograma, con transfer learning desde YAMNet	MIMII (público, Zenodo) — subconjunto de bombas	https://github.com/usuario/rodamientos-dl	Aprobado	Fila de ejemplo. No la borren.

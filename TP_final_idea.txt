@@ -1,0 +1,51 @@
+Actúa como un Ingeniero de Machine Learning y desarrollador en Python. Genera un archivo o notebook ejecutable de Google Colab (.ipynb) enfocado en la clasificación de notas musicales en señales 1D usando PyTorch. 
+
+El objetivo final del proyecto es tomar un archivo de audio (WAV o MP3), predecir su nota/tonalidad principal con una red CNN 1D y devolver:
+1. La nota predicha.
+2. La armónica blues recomendada (usando la tabla de Cross-Harp / 2ª Posición para blues).
+3. Una secuencia corta de notas o un "riff" recomendado para improvisar en armónica sobre esa canción.
+
+Requisitos de entorno y dataset:
+- Debe correr fluido en el entorno GRATUITO de Google Colab (CPU o T4 GPU).
+- Para evitar descargas pesadas o enlaces rotos de datasets externos, incluye en el mismo script un módulo en Python que genere un DATASET SINTÉTICO de audio 1D (usando numpy y scipy) con tonos puros, armónicos y ruido, etiquetando las 12 notas cromáticas (C, C#, D, D#, E, F, F#, G, G#, A, A#, B).
+
+El notebook debe estructurarse estrictamente en los siguientes 10 pasos numerados con explicaciones teóricas concisas entre bloques de código:
+
+PASO 1: Explicación Didáctica Corta de los Conceptos
+- Explicar brevemente qué es una CNN 1D, qué es un Kernel 1D (como filtro de frecuencia adaptativo), cómo opera la convolución sobre el eje del tiempo y el concepto de Stride y Pooling.
+
+PASO 2: Instalación de Dependencias e Importaciones
+- Importar torch, torchaudio, numpy, matplotlib, seaborn, librosa, scipy y sklearn.
+
+PASO 3: Generación del Dataset Sintético de Notas 1D
+- Crear una función que genere audios de 2 segundos a 16.000 Hz con la frecuencia fundamental de cada nota ($f_0$), sumando 2 o 3 armónicos y ruido blanco para simular instrumentos.
+- Armar la clase PyTorch `Dataset` y `DataLoader`.
+
+PASO 4: Definición de la Arquitectura CNN 1D (PyTorch)
+- Crear la clase `NoteClassifier1D(nn.Module)`.
+- Diseñar la red con un Kernel inicial ancho (p. ej. size=64 o 128) para capturar frecuencias bajas, seguido de bloques Conv1D + BatchNorm + ReLU + MaxPool1D, y un `AdaptiveAvgPool1d(1)` antes del clasificador lineal (12 clases).
+- Explicar brevemente la razón de la elección de los hiperparámetros (Learning Rate, Batch Size, Kernel Sizes, Optimizer).
+
+PASO 5: Bucle de Entrenamiento (Training Loop)
+- Entrenar por 10-15 épocas usando `CrossEntropyLoss` y el optimizador `Adam`.
+- Mostrar el progreso de Loss y Accuracy por época.
+
+PASO 6: Gráficos de Evaluación y Matriz de Confusión
+- Graficar la curva de Loss/Accuracy.
+- Generar y visualizar una Matriz de Confusión de $12 \times 12$ usando `seaborn.heatmap`.
+
+PASO 7: Módulo de Lógica para Armónica Blues (Cross-Harp)
+- Definir un diccionario o función que reciba la nota predicha de la canción (1ª Posición) y devuelva:
+  * La tonalidad de la armónica recomendada en 2ª Posición (Cross-Harp, ej: Canción en G -> Armónica en C).
+  * Una secuencia simple de celdas a tocar (ej: "Aspirado en celda 2, Aspirado en celda 3 con bend...").
+
+PASO 8: Módulo de Carga y Preprocesamiento de Audio Real (WAV / MP3)
+- Función para cargar cualquier archivo de audio local o subido a Colab, convertir a Mono, hacer resampling a 16.000 Hz y recortar/agrupar en ventanas de 2 segundos.
+
+PASO 9: Inferencia y Prueba con Audio de Entrada
+- Crear el flujo que toma un archivo de prueba, realiza la predicción con el modelo 1D entrenado y muestra el resultado en pantalla.
+
+PASO 10: Salida del "As de la Armónica"
+- Imprimir un resumen visual en consola con la nota de la canción, la armónica que tenés que agarrar de tu estuche y la rutina corta de celdas para tocar arriba de la pista.
+
+Asegúrate de que todo el código esté limpio, bien comentado y listo para ejecutar de principio a fin sin errores.
