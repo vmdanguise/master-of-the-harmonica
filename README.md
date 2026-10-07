@@ -24,7 +24,7 @@ Materia: Redes Neuronales y Deep Learning · Maestría en IA · Universidad de P
 ## Dataset
 
 - **Sintético propio (entrenamiento):** progresiones `I-IV-V-I` / `i-iv-V-i` con `V mayor`, 4 s @16 kHz, 3 armónicos + envolvente + micro-desafinación + ruido SNR 12–25 dB, generación on-the-fly. `train 1920 (80/clase) / val 480 / test 480`, `val/test` determinísticos. Sin descargas.
-- **Real (evaluación):** `audios_prueba_final/` + subset opcional de 20 temas de [GiantSteps Key](https://github.com/GiantSteps/giantsteps-key-dataset) (604 previews de 2 min EDM Beatport en 24 keys, Knees et al. ISMIR 2015; solo evaluación, ver Paso 8 del notebook). No versionar MP3 grandes de Beatport en este repo.
+- **Real (evaluación, no entrena):** `audios_prueba_final/` + descarga automática de 20 temas al azar de [GiantSteps Key](https://github.com/GiantSteps/giantsteps-key-dataset) (604 previews de 2 min EDM Beatport en 24 keys, Knees et al. ISMIR 2015; mirror JKU con verificación md5, `seed 7`, solo evaluación, ver Pasos 8 y 9b). Si no hay internet, el notebook sigue con demo + upload. Los MP3 de GiantSteps no se versionan.
 
 ## Cómo reproducir (Colab gratuito)
 
