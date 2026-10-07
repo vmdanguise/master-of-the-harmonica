@@ -1,0 +1,6 @@
+filename,key_verdadera,tonica,modo,duracion_s,sr,uso
+test_C_maj_I-IV-V-I.wav,C maj,C,maj,4,16000,test CNN y baseline K-S
+test_G_maj_I-IV-V-I.wav,G maj,G,maj,4,16000,test CNN y baseline K-S
+test_A_min_i-iv-V-i.wav,A min,A,min,4,16000,test modo menor
+test_E_maj_I-IV-V-I.wav,E maj,E,maj,4,16000,test CNN y baseline K-S
+demo_blues_A_12bar_key-A-maj.wav,A maj,A,maj,24,16000,demo 12-bar blues + As de la armonica (esperado: armonica en D)
