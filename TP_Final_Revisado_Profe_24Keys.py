@@ -58,7 +58,8 @@ except ImportError: pass  # si falta el modulo sigue sin cortar
 # ## PASO 2 — Dependencias
 # ==========================================================
 
-# OMITIDO (solo Colab/Jupyter): pip install -q librosa seaborn scikit-learn scipy 2>&1 | tail -n 2  # instala faltantes en Colab en silencio
+# instala faltantes en Colab en silencio
+# OMITIDO (solo Colab/Jupyter): pip install -q librosa seaborn scikit-learn scipy 2>&1 | tail -n 2
 import os, math, random  # importa sistema, matematica y azar
 import numpy as np, matplotlib.pyplot as plt, seaborn as sns  # importa numeros, graficos y estilo de graficos
 from scipy.io import wavfile  # importa lectura y escritura de WAV
@@ -66,7 +67,8 @@ import torch, torch.nn as nn  # importa torch y sus capas de red
 from torch.utils.data import Dataset, DataLoader  # importa base de dataset y cargador por lotes
 import torchaudio, librosa  # importa audio de torch y analisis de audio
 from sklearn.metrics import confusion_matrix, accuracy_score  # importa matriz de confusion y accuracy
-# OMITIDO (solo Colab/Jupyter): %matplotlib inline  # muestra los graficos dentro del notebook
+# muestra los graficos dentro del notebook
+# OMITIDO (solo Colab/Jupyter): %matplotlib inline
 sns.set(style="whitegrid")  # usa estilo con grilla en los graficos
 DEVICE="cuda" if torch.cuda.is_available() else "cpu"  # elige GPU si hay y si no CPU
 print("DEVICE:",DEVICE,"| torch:",torch.__version__)  # muestra dispositivo y version de torch
