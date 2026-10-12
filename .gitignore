@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# Audio de GiantSteps descargado en tiempo de ejecucion (no se versiona, ver README)
+gs_audio/
+gs_key/

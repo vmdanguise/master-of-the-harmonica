@@ -1,0 +1,6 @@
+archivo,verdad,cnn,cnn_conf,ks,ks_r,cnn_ok,ks_ok
+demo_blues_A_12bar_key-A-maj.wav,A maj,C maj,0.7495,A maj,0.8364,0,1
+test_A_min_i-iv-V-i.wav,A min,A min,0.9623,A min,0.9001,1,1
+test_C_maj_I-IV-V-I.wav,C maj,C maj,0.947,C maj,0.964,1,1
+test_E_maj_I-IV-V-I.wav,E maj,E maj,0.9836,E maj,0.9714,1,1
+test_G_maj_I-IV-V-I.wav,G maj,G maj,0.9151,G maj,0.9713,1,1

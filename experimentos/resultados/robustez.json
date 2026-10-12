@@ -1,0 +1,101 @@
+{
+  "base (igual que train)": {
+    "n": 120,
+    "cnn_acc": 1.0,
+    "ks_acc": 1.0,
+    "cnn_mirex": 1.0,
+    "ks_mirex": 1.0,
+    "cnn_acc_tonica": 1.0,
+    "ks_acc_tonica": 1.0
+  },
+  "progresion I-V-vi-IV": {
+    "n": 120,
+    "cnn_acc": 0.925,
+    "ks_acc": 0.5,
+    "cnn_mirex": 0.9375,
+    "ks_mirex": 0.6500000000000002,
+    "cnn_acc_tonica": 0.9666666666666667,
+    "ks_acc_tonica": 1.0
+  },
+  "progresion ii-V-I": {
+    "n": 120,
+    "cnn_acc": 1.0,
+    "ks_acc": 0.5,
+    "cnn_mirex": 1.0,
+    "ks_mirex": 0.75,
+    "cnn_acc_tonica": 1.0,
+    "ks_acc_tonica": 0.5
+  },
+  "registro +1 octava": {
+    "n": 120,
+    "cnn_acc": 0.041666666666666664,
+    "ks_acc": 1.0,
+    "cnn_mirex": 0.18250000000000002,
+    "ks_mirex": 1.0,
+    "cnn_acc_tonica": 0.09166666666666666,
+    "ks_acc_tonica": 1.0
+  },
+  "registro -1 octava": {
+    "n": 120,
+    "cnn_acc": 0.041666666666666664,
+    "ks_acc": 1.0,
+    "cnn_mirex": 0.10583333333333332,
+    "ks_mirex": 1.0,
+    "cnn_acc_tonica": 0.08333333333333333,
+    "ks_acc_tonica": 1.0
+  },
+  "timbre brillante (6 arm.)": {
+    "n": 120,
+    "cnn_acc": 0.9083333333333333,
+    "ks_acc": 1.0,
+    "cnn_mirex": 0.9258333333333333,
+    "ks_mirex": 1.0,
+    "cnn_acc_tonica": 0.9166666666666666,
+    "ks_acc_tonica": 1.0
+  },
+  "timbre opaco (1 arm.)": {
+    "n": 120,
+    "cnn_acc": 1.0,
+    "ks_acc": 1.0,
+    "cnn_mirex": 1.0,
+    "ks_mirex": 1.0,
+    "cnn_acc_tonica": 1.0,
+    "ks_acc_tonica": 1.0
+  },
+  "ruido fuerte SNR 5 dB": {
+    "n": 120,
+    "cnn_acc": 1.0,
+    "ks_acc": 1.0,
+    "cnn_mirex": 1.0,
+    "ks_mirex": 1.0,
+    "cnn_acc_tonica": 1.0,
+    "ks_acc_tonica": 1.0
+  },
+  "ruido fuerte SNR 0 dB": {
+    "n": 120,
+    "cnn_acc": 0.8083333333333333,
+    "ks_acc": 1.0,
+    "cnn_mirex": 0.8375,
+    "ks_mirex": 1.0,
+    "cnn_acc_tonica": 0.85,
+    "ks_acc_tonica": 1.0
+  },
+  "afinacion 432 Hz": {
+    "n": 120,
+    "cnn_acc": 0.9166666666666666,
+    "ks_acc": 0.9583333333333334,
+    "cnn_mirex": 0.9166666666666666,
+    "ks_mirex": 0.9583333333333334,
+    "cnn_acc_tonica": 0.9166666666666666,
+    "ks_acc_tonica": 0.9583333333333334
+  },
+  "afinacion 445 Hz": {
+    "n": 120,
+    "cnn_acc": 1.0,
+    "ks_acc": 1.0,
+    "cnn_mirex": 1.0,
+    "ks_mirex": 1.0,
+    "cnn_acc_tonica": 1.0,
+    "ks_acc_tonica": 1.0
+  }
+}

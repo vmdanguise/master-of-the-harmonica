@@ -1,0 +1,16 @@
+# Entorno verificado de la corrida reportada en el informe (Python 3.12, CPU).
+torch==2.14.1
+torchaudio==2.11.0
+librosa==1.0.0
+numpy==2.5.3
+scipy==1.18.1
+scikit-learn==1.9.1
+matplotlib==3.11.2
+seaborn==0.13.2
+pandas==3.0.6
+
+# Generacion del informe en PDF
+reportlab==5.0.1
+
+# Slides de la defensa oral
+python-pptx==1.0.2

@@ -1,43 +1,193 @@
 # Master of the Harmonica
 
-TP Final — Clasificación multiclase con CNN 1D para evaluar la tonalidad de una canción y recomendar armónica + notas de acompañamiento.
+> Clasificación de tonalidad musical en 24 clases con CNN 1D sobre audio crudo, y derivación determinística de la armónica blues en segunda posición.
 
-Materia: Redes Neuronales y Deep Learning · Maestría en IA · Universidad de Palermo.
+**TP Final · Redes Neuronales y Deep Learning · Maestría en IA · Universidad de Palermo**
 
-## Revisión de cátedra (aplicada)
+[![Python](https://img.shields.io/badge/Python-3.12-blue)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.14-ee4c2c)](https://pytorch.org/)
+[![Colab](https://img.shields.io/badge/Colab-ejecutable-f9ab00)](https://colab.research.google.com/)
+[![Informe](https://img.shields.io/badge/Informe-PDF-success)](informe/informe.pdf)
 
-> Falta definir qué entra y qué sale. Acotarlo: clasificar la tonalidad (24 clases) y derivar la armónica con una regla; en segunda posición es una cuarta justa arriba. Como los datos son sintéticos, sumar prueba con canciones reales de tonalidad conocida (GiantSteps Key). Línea de base sin redes: cromagrama + perfiles Krumhansl-Schmuckler.
+---
 
-- **Entra:** audio `WAV/MP3` → mono `16 kHz` → ventanas de 4 s normalizadas. No entra MIDI ni cromagrama a la red.
-- **Sale:** tonalidad en **24 clases (12 tónicas x mayor/menor)** con confianza y Top-3, armónica blues en **2da posición = 4ta justa arriba `(+5 semitonos)`** y riff de celdas (soplar / aspirar / bending).
-- **Baseline:** cromagrama `librosa` promediado + correlación de Pearson contra los 24 perfiles rotados de Krumhansl-Kessler. Si la CNN no lo supera, no agregó valor.
+## El problema
 
-## Contenido
+Para improvisar en blues con armónica hay que resolver dos cosas: en qué tonalidad está la canción, y qué armónica tomar del estuche. Lo segundo no es la armónica de la canción: en *segunda posición* (cross-harp) se usa la que está una cuarta justa arriba.
 
-- `TP_Final_Revisado_Profe_24Keys.ipynb` — versión revisada (10 pasos, lista para Colab gratuito, CPU ok).
-- `TP_Final_Revisado_Profe_24Keys.py` — mismo código en script plano (comentarios espejo del notebook).
-- `audios_prueba_final/` — pruebas de tonalidad conocida versionadas (16 kHz mono) + `MANIFEST_keys.csv`:
-  `test_C_maj`, `test_G_maj`, `test_E_maj` (I-IV-V-I), `test_A_min` (i-iv-V-i) y `demo_blues_A_12bar_key-A-maj.wav` (24 s, verdad `A maj` → armónica en `D`).
-- `TP_Final_Armonica_Blues_CNN1D.ipynb` / `.py` — primera versión (12 notas, ventanas 2 s, se conserva como antecedente).
-- `TP_final_idea.txt`, `trabajo-practico-consigna.txt` — idea original y consigna.
+Este proyecto automatiza la cadena completa: **entra un audio, sale qué armónica agarrar y un riff para arrancar.**
 
-## Dataset
+```
+audio.mp3 → [CNN 1D] → "G maj" (conf 0.92) → [regla +5] → armónica en C + riff de celdas
+```
 
-- **Sintético propio (entrenamiento):** progresiones `I-IV-V-I` / `i-iv-V-i` con `V mayor`, 4 s @16 kHz, 3 armónicos + envolvente + micro-desafinación + ruido SNR 12–25 dB, generación on-the-fly. `train 1920 (80/clase) / val 480 / test 480`, `val/test` determinísticos. Sin descargas.
-- **Real (evaluación, no entrena):** `audios_prueba_final/` + descarga automática de 20 temas al azar de [GiantSteps Key](https://github.com/GiantSteps/giantsteps-key-dataset) (604 previews de 2 min EDM Beatport en 24 keys, Knees et al. ISMIR 2015; mirror JKU con verificación md5, `seed 7`, solo evaluación, ver Pasos 8 y 9b). Si no hay internet, el notebook sigue con demo + upload. Los MP3 de GiantSteps no se versionan.
+La parte perceptual (estimar la tonalidad) la resuelve una red. La parte musical (`armónica = (tónica + 5) mod 12`) es determinística y no se aprende: implementarla como red sería agregarle error a algo exacto.
 
-## Cómo reproducir (Colab gratuito)
+---
 
-1. Subir `TP_Final_Revisado_Profe_24Keys.ipynb` a Google Colab.
-2. Entorno GPU T4 (opcional, anda en CPU) → `Reiniciar y ejecutar todo`.
-3. Verifica curvas + matriz 24×24 + score MIREX + comparativa `CNN vs K-S` + `As de la Armónica`.
+## Resultado principal (leer esto antes que nada)
 
-## Entorno y reproducibilidad
+El modelo alcanza **100 % de accuracy en el test sintético**. Ese número, solo, es engañoso.
 
-- Python 3 + torch, torchaudio, numpy, matplotlib, seaborn, librosa, scipy, scikit-learn.
-- Semilla fija `42` (random/numpy/torch, cudnn determinístico).
-- Métricas: accuracy 24 clases + score estilo MIREX (correcta 1, quinta 0.5, relativa/paralela 0.3).
+**La línea de base sin redes (cromagrama + Krumhansl-Schmuckler) obtiene el mismo 100 %.** El benchmark está saturado y no discrimina entre métodos. Eso disparó una evaluación fuera de distribución, donde aparece el hallazgo real:
 
-## Lógica Cross-Harp (simple)
+| Escenario | CNN 1D | Baseline K-S |
+|---|---|---|
+| Test sintético | 1,000 | 1,000 |
+| Progresión armónica nueva (`I-V-vi-IV`) | **0,925** | 0,500 |
+| Progresión armónica nueva (`ii-V-I`) | **1,000** | 0,500 |
+| Ruido fuerte (SNR 0 dB) | 0,808 | 1,000 |
+| **Transposición de 1 octava** | **0,042** | **1,000** |
+| Audio real (5 temas de tonalidad conocida) | 0,800 | **1,000** |
 
-Sin teoría: soplar (echar aire), aspirar (tomar aire), bending (aspirar frenando el aire, lloradito blues). La tabla sale de la fórmula, no se memoriza. El riff detallado está para `C`; el resto usa el riff genérico de 2da posición (celdas 2–4, casa en celda 2 aspirando).
+La CNN **colapsa al nivel del azar (1/24 = 0,042) ante un cambio de octava**, mientras el método clásico no se inmuta.
+
+El diagnóstico por barrido de semitonos explica por qué: al desplazar el audio **un semitono**, la red predice la etiqueta *transpuesta* el **91,7 %** de las veces y la correcta el **0 %**.
+
+> **La red aprendió a detectar altura absoluta, no tonalidad.**
+
+La causa no fue la arquitectura: fue el conjunto de datos. El generador sintético ubicaba cada tonalidad siempre en el mismo registro, lo que volvió "tonalidad" y "frecuencia absoluta" indistinguibles. El modelo tomó el atajo (*shortcut learning*) y el test, generado con el mismo sesgo, no podía detectarlo.
+
+**Conclusión honesta: para esta tarea y con este diseño, la red no superó a la línea de base.** El valor del trabajo está en haberlo detectado, medido y explicado. El análisis completo y las correcciones propuestas están en el **[informe](informe/informe.pdf)**.
+
+<p align="center">
+  <img src="informe/figuras/robustez.png" width="85%" alt="Robustez fuera de distribución">
+</p>
+
+---
+
+## Qué hay en este repositorio
+
+```
+├── informe/
+│   ├── informe.pdf                  ← informe completo (14 pág.)
+│   ├── informe.md                   ← fuente en Markdown
+│   ├── md_a_pdf.py                  ← generador del PDF
+│   └── figuras/                     ← figuras del informe
+├── presentacion/
+│   └── presentacion.pptx            ← slides para la defensa oral
+├── experimentos/
+│   ├── run_experimentos.py          ← entrenamiento + test + audio real
+│   ├── run_robustez.py              ← 11 escenarios fuera de distribución
+│   ├── run_diagnostico.py           ← barrido de semitonos (el hallazgo)
+│   └── resultados/                  ← métricas .json, figuras .png, modelo .pt
+├── TP_Final_Revisado_Profe_24Keys.ipynb   ← notebook principal (Colab)
+├── TP_Final_Armonica_Blues_CNN1D.ipynb    ← primera versión (12 notas), antecedente
+├── audios_prueba_final/             ← 5 audios de tonalidad conocida + MANIFEST
+└── requirements.txt
+```
+
+---
+
+## Reproducir
+
+### Opción A — Colab (sin instalar nada)
+
+Subir `TP_Final_Revisado_Profe_24Keys.ipynb` → entorno CPU o GPU T4 → *Reiniciar y ejecutar todo*.
+
+### Opción B — Local
+
+```bash
+git clone https://github.com/vmdanguise/master-of-the-harmonica.git
+cd master-of-the-harmonica
+pip install -r requirements.txt
+
+python experimentos/run_experimentos.py   # entrena y evalúa (~10 min en CPU)
+python experimentos/run_robustez.py       # 11 escenarios OOD
+python experimentos/run_diagnostico.py    # diagnóstico de transposición
+python informe/md_a_pdf.py                # regenera el PDF
+```
+
+Los tres scripts escriben en `experimentos/resultados/`: `metricas.json`, `robustez.json`, `diagnostico.json`, las figuras `.png`, `cnn_vs_ks.csv` y el modelo `keycnn1d_best.pt`.
+
+---
+
+## Diseño experimental
+
+### Entrada y salida (según revisión de cátedra)
+
+- **Entra:** `WAV/MP3` → mono → 16 kHz → ventanas de 4 s normalizadas por pico. A la red entra **forma de onda cruda**: no entra MIDI ni cromagrama.
+- **Sale:** tonalidad en **24 clases** (12 tónicas × mayor/menor) con confianza y Top-3; la armónica se deriva por regla.
+
+### Modelo
+
+`KeyCNN1D` — **80.968 parámetros**, entrada `(1, 64000)`, salida 24 logits.
+
+| Bloque | Operación | Canales | Kernel |
+|---|---|---|---|
+| b1 | Conv1d(stride 8) + BN + ReLU + MaxPool(4) | 1 → 16 | 128 |
+| b2 | Conv1d + BN + ReLU + MaxPool(4) | 16 → 32 | 16 |
+| b3 | Conv1d + BN + ReLU + MaxPool(4) | 32 → 64 | 7 |
+| b4 | Conv1d + BN + ReLU + MaxPool(4) | 64 → 128 | 5 |
+| head | AdaptiveAvgPool1d(1) → 128 → 96 → 24 (dropout 0.3) | — | — |
+
+Kernel inicial ancho (128 muestras ≈ 8 ms) para capturar periodicidad; `AdaptiveAvgPool1d` colapsa el tiempo porque la tonalidad es una propiedad global del fragmento.
+
+**Entrenamiento:** CrossEntropy + Adam (`lr=1e-3`), 12 épocas, batch 32, semilla 42.
+
+### Datos
+
+- **Sintético (entrena):** progresiones `I-IV-V⁷-I` (mayor) / `i-iv-V⁷-i` (menor), 4 s @16 kHz, 3 armónicos + envolvente + micro-desafinación + ruido SNR 12–25 dB, generadas *on-the-fly*. `train 1920 / val 480 / test 480`, balanceado en 24 clases.
+- **Real (solo evalúa):** `audios_prueba_final/` (5 temas de tonalidad conocida) + un MP3 comercial + descarga opcional de [GiantSteps Key](https://github.com/GiantSteps/giantsteps-key-dataset) (604 previews, Knees et al. ISMIR 2015, verificación md5). Los MP3 descargados no se versionan.
+
+### Métricas
+
+Accuracy en 24 clases (azar = 1/24) y **score estilo MIREX**, que da crédito parcial por errores musicalmente cercanos: exacto `1.0`, quinta `0.5`, relativa o modo cambiado `0.3`, resto `0.0`.
+
+---
+
+## Regla cross-harp
+
+```python
+armonica = (tonica + 5) % 12   # una cuarta justa arriba
+```
+
+Vale igual para mayor y menor (depende solo de la tónica).
+
+| Canción | Armónica | | Canción | Armónica |
+|---|---|---|---|---|
+| C | F | | F# | B |
+| C# | F# | | G | **C** |
+| D | G | | G# | C# |
+| D# | G# | | A | **D** |
+| E | A | | A# | D# |
+| F | A# | | B | E |
+
+Técnica, sin teoría: **soplar** (echar aire), **aspirar** (tomar aire), **bending** (aspirar frenando el aire, el sonido lloradito del blues). La casa de la segunda posición es la **celda 2 aspirando**.
+
+---
+
+## Limitaciones conocidas
+
+- **Transposición:** limitación principal, cuantificada arriba. La red no es invariante a la octava.
+- **Ventana de 4 s:** no capta modulaciones dentro de un tema.
+- **Blues mezcla mayor y menor** por diseño estético → `A maj` y `A min` son parcialmente ambiguos; por eso se reporta Top-3 y MIREX.
+- **Brecha sintético → real:** sin batería, voz ni distorsión en el entrenamiento, el audio comercial queda fuera de distribución (confianza 0,236 en el MP3 de prueba).
+
+## Trabajo futuro
+
+Ordenado por impacto sobre la causa raíz identificada:
+
+1. **Aumentación por pitch-shift** actualizando la etiqueta — rompe la correlación espuria entre tonalidad y altura absoluta.
+2. **Randomizar la octava en el generador** — dos líneas de código, elimina el sesgo en el origen.
+3. **Migrar a CQT/log-mel + CNN 2D** — sobre una CQT la transposición es una traslación, y la convolución 2D es equivariante a traslaciones: da por arquitectura la invariancia que hoy falta.
+4. **Evaluación sistemática sobre los 604 temas de GiantSteps.**
+
+---
+
+## Entorno
+
+Python 3.12.10 · PyTorch 2.14.1 · librosa 1.0.0 · scikit-learn 1.9.1 · scipy 1.18.1 · seaborn 0.13.2 · numpy 2.5.3
+
+Semilla fija `42` (`random`, `numpy`, `torch`, `cudnn.deterministic`). Toda la corrida reportada se hizo en **CPU**.
+
+## Referencias
+
+- Krumhansl & Kessler (1982). *Tracing the dynamic changes in perceived tonal organization...* Psychological Review 89(4).
+- Knees et al. (2015). *Two data sets for tempo estimation and key detection in EDM.* ISMIR.
+- Geirhos et al. (2020). *Shortcut learning in deep neural networks.* Nature Machine Intelligence 2(11).
+- Géron (2019). *Hands-On Machine Learning*, cap. 10.
+
+---
+
+**Autor:** V. M. Danguise · Universidad de Palermo · 2026
