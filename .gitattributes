@@ -1,0 +1,7 @@
+# Binarios: git no debe convertir finales de linea ni tratarlos como texto
+*.pdf  binary
+*.pptx binary
+*.png  binary
+*.pt   binary
+*.wav  binary
+*.mp3  binary
