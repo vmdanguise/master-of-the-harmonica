@@ -344,7 +344,7 @@ if GS_ITEMS:  # si hay temas GiantSteps descargados
     for path,true in GS_ITEMS:  # recorre los temas con su clave verdadera
         cnn,_=predecir_cnn(path,verbose=False); ks,_=baseline_ks(path)  # predice en silencio con ambos metodos
         cc,kk=cnn==true,ks==true; ok_c+=cc; ok_k+=kk  # compara con la verdad y acumula aciertos
-        sc,sk=mirex(K2I[cnn],K2I[true]),mirex(K2I[ks],K2I[true]); mc+=sc; mk+=sk  # calcula puntaje parcial y lo acumula
+        sc,sk=mirex(K2I[true],K2I[cnn]),mirex(K2I[true],K2I[ks]); mc+=sc; mk+=sk  # calcula puntaje parcial y lo acumula
         print(f"{os.path.basename(path):28s} {true:8s} {cnn:8s} {ks:8s} {int(cc):>6d} {int(kk):>5d}")  # imprime la fila del tema
     n=len(GS_ITEMS)  # cantidad de temas evaluados
     print(f"\nGiantSteps-{n} | CNN acc {ok_c/n:.2f} mirex {mc/n:.2f} || K-S acc {ok_k/n:.2f} mirex {mk/n:.2f}")  # muestra accuracy y MIREX de CNN contra K-S
