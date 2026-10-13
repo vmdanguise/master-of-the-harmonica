@@ -60,7 +60,7 @@ La causa no fue la arquitectura: fue el conjunto de datos. El generador sintéti
 
 ```
 ├── informe/
-│   ├── informe.pdf                  ← informe completo (14 pág.)
+│   ├── informe.pdf                  ← informe completo (15 pág.)
 │   ├── informe.md                   ← fuente en Markdown
 │   ├── md_a_pdf.py                  ← generador del PDF
 │   └── figuras/                     ← figuras del informe
