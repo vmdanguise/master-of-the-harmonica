@@ -73,6 +73,7 @@ La causa no fue la arquitectura: fue el conjunto de datos. El generador sintéti
 │   ├── run_diagnostico.py           ← barrido de semitonos (el hallazgo)
 │   └── resultados/                  ← métricas .json, figuras .png, modelo .pt, giantsteps.csv/.json
 ├── TP_Final_Revisado_Profe_24Keys.ipynb   ← notebook principal (Colab)
+├── TP_Final_Revisado_Profe_24Keys_ejecutado.ipynb   ← el mismo notebook ejecutado en Colab (GPU T4), con todas las salidas
 ├── TP_Final_Armonica_Blues_CNN1D.ipynb    ← primera versión (12 notas), antecedente
 ├── audios_prueba_final/             ← 5 audios generados de tonalidad conocida + MANIFEST
 └── requirements.txt
@@ -186,6 +187,8 @@ Los resultados salen de dos corridas, ambas con semilla fija `42` (`random`, `nu
 |---|---|---|
 | **Local, CPU** (`experimentos/`) | entrenamiento, test sintético, 11 escenarios OOD, barrido de semitonos, 5 audios generados | Python 3.12.10 · PyTorch 2.14.1 · librosa 1.0.0 · scikit-learn 1.9.1 · scipy 1.18.1 · numpy 2.5.3 |
 | **Google Colab, GPU T4** (notebook desde cero) | reproduce entrenamiento y test sintético; **GiantSteps** y MP3 comercial | Python 3.13.15 · PyTorch 2.11.0 · librosa 0.11.0 · scikit-learn 1.6.1 · scipy 1.16.3 · numpy 2.1.3 |
+
+Las salidas originales de la corrida de Colab (entorno, entrenamiento, test, tabla de GiantSteps, Pappo) están en `TP_Final_Revisado_Profe_24Keys_ejecutado.ipynb`, versionado sin modificar.
 
 **Sobre el MIREX de GiantSteps:** la corrida de Colab imprimió `K-S mirex 0.54`; el valor correcto es **0,59**. En esa versión la celda llamaba a `mirex(predicción, verdad)` con los argumentos invertidos y perdía el crédito de quinta en dos temas. El notebook del repo ya está corregido, y `giantsteps.json` trae el valor recalculado sobre las mismas predicciones; la accuracy no cambia.
 
