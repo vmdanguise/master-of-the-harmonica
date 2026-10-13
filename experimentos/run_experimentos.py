@@ -319,8 +319,8 @@ def main():
             filas.append({"archivo": f, "verdad": tru, "cnn": cnn, "cnn_conf": round(conf, 4),
                           "cnn_top3": top3, "ks": ks, "ks_r": round(r, 4),
                           "cnn_ok": int(cnn == tru), "ks_ok": int(ks == tru),
-                          "cnn_mirex": mirex(K2I[cnn], K2I[tru]) if tru in K2I else None,
-                          "ks_mirex": mirex(K2I[ks], K2I[tru]) if tru in K2I else None})
+                          "cnn_mirex": mirex(K2I[tru], K2I[cnn]) if tru in K2I else None,
+                          "ks_mirex": mirex(K2I[tru], K2I[ks]) if tru in K2I else None})
             print(f"{f:40s} verdad {tru:7s} cnn {cnn:7s} ({conf:.2f}) ks {ks:7s} (r={r:.2f})")
     res["audios_reales"] = filas
     if filas:

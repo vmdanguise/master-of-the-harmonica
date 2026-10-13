@@ -22,7 +22,7 @@ El resultado principal del trabajo **no es el que se esperaba, y es el aporte m�
 
 Para resolver esa ambigüedad se diseñó un protocolo de evaluación fuera de distribución (OOD) con once escenarios de perturbación controlada. Allí la conclusión se invierte. La CNN mantiene buen desempeño frente a cambios de progresión armónica (92,5 % y 100 %), de timbre (90,8 %) y de ruido (80,8 % a SNR 0 dB), pero **colapsa a 4,2 % de accuracy —por debajo del azar relativo a la línea de base— cuando el audio se transpone una octava**, condición en la que el método clásico se mantiene en 100 %. Un experimento de diagnóstico con barrido fino en semitonos explica el mecanismo: al desplazar el audio un semitono, la red predice la etiqueta *transpuesta* en el 91,7 % de los casos y la etiqueta correcta en el 0 %. Es decir, la red no aprendió tonalidad, sino **altura absoluta**. Funcionó en test porque el generador sintético siempre ubicaba cada tonalidad en el mismo registro, lo que constituye un atajo estadístico (*shortcut learning*) que el conjunto de test, por construir con el mismo generador, no podía detectar.
 
-Sobre audio real la jerarquía se confirma: en los cinco audios versionados de tonalidad conocida la CNN acierta 4 de 5 (80 %) frente a 5 de 5 (100 %) del método clásico, y falla precisamente en el caso de blues de 12 compases, el más relevante para la aplicación. En un MP3 comercial la confianza de la red cae a 0,236, señal de operación fuera de su dominio de entrenamiento.
+Sobre canciones reales la jerarquía se confirma con más fuerza. En 20 temas del conjunto anotado **GiantSteps Key**, elegidos al azar y usados solo para evaluar, la CNN acierta 2 de 20 (10 %, MIREX 0,13) y el método clásico 9 de 20 (45 %, MIREX 0,59). La red responde `A maj` en 11 de los 20 temas y usa solo 4 de las 24 clases: no está leyendo la canción. En cinco audios generados por programa con tonalidad conocida, la CNN acierta 4 de 5 y el método clásico 5 de 5; la red falla justamente en el blues de 12 compases, el caso más relevante para la aplicación. En un MP3 comercial la confianza máxima de la red es 0,245, señal de operación fuera de su dominio de entrenamiento.
 
 La conclusión honesta del trabajo es que, para esta tarea y con este diseño, **la red neuronal no superó a la línea de base clásica**, y que el diseño del conjunto de datos —no la arquitectura— fue el factor limitante. El informe documenta el diagnóstico y propone la corrección concreta: representación invariante a transposición (CQT o log-mel) y aumentación por *pitch-shift*, que atacan directamente la causa raíz identificada.
 
@@ -130,9 +130,13 @@ El generador fija el registro: la fundamental de cada tonalidad se ubica siempre
 
 Esto crea una correlación espuria perfecta entre "tonalidad" y "altura absoluta". Un modelo puede resolver el conjunto completo aprendiendo únicamente a detectar frecuencias absolutas, sin construir ninguna noción de relación intervalar. Y como el test comparte el sesgo del generador, el test no puede detectarlo. La sección 6 muestra que esto es precisamente lo que ocurrió.
 
-### 3.3 Audio real de evaluación
+### 3.3 Audio de evaluación fuera del conjunto sintético
 
-Se versionaron en el repositorio cinco audios de tonalidad conocida, a 16 kHz mono, usados **solo para evaluación** (nunca para entrenar):
+Ninguno de los audios de esta sección se usó para entrenar. Hay tres grupos, de distinta naturaleza.
+
+**Canciones reales anotadas: GiantSteps Key.** Es un conjunto público de 604 fragmentos de 2 minutos de música electrónica (previews de Beatport), con la tonalidad anotada en las mismas 24 clases (Knees et al., ISMIR 2015). El notebook elige 20 temas al azar con semilla fija (`random.Random(7).sample` sobre los 604 identificadores), descarga los MP3 del espejo de JKU y verifica cada uno con md5 (20 de 20 correctos). Las anotaciones no declaran licencia y los audios son previews comerciales, por lo que los MP3 no se redistribuyen en el repositorio; sí se versionan los resultados por tema (`experimentos/resultados/giantsteps.csv` y `giantsteps.json`). Es el único grupo con música real y tonalidad verificada por terceros, y por eso es la evaluación de mayor peso del trabajo.
+
+**Audios generados de control.** Se versionaron cinco audios de tonalidad conocida, a 16 kHz mono. **No son grabaciones**: fueron sintetizados por programa, igual que el conjunto de entrenamiento, aunque con formatos distintos (otra duración, otro registro, walking bass en lugar de acordes). Sirven para probar la cadena completa de punta a punta, no para medir el desempeño sobre música real:
 
 | Archivo | Tonalidad verdadera | Contenido |
 |---|---|---|
@@ -142,7 +146,7 @@ Se versionaron en el repositorio cinco audios de tonalidad conocida, a 16 kHz mo
 | `test_A_min_i-iv-V-i.wav` | A min | progresión i-iv-V-i |
 | `demo_blues_A_12bar_key-A-maj.wav` | A maj | blues de 12 compases, 24 s, walking bass |
 
-Adicionalmente se incluye un MP3 comercial (*Pappo – Buscando un Amor*) como prueba de dominio totalmente abierto, y el notebook implementa la descarga automática de un subconjunto de **GiantSteps Key** (604 previews de 2 minutos, 24 tonalidades, Knees et al., ISMIR 2015), con verificación md5 contra el espejo de JKU y semilla fija, también solo para evaluación. Los MP3 descargados no se versionan.
+**MP3 comercial.** *Pappo – Buscando un Amor*, como demostración de la aplicación sobre un tema de blues real. No tiene tonalidad anotada, así que no entra en ninguna métrica.
 
 ---
 
@@ -172,9 +176,12 @@ La progresión de kernels (128 → 16 → 7 → 5) sigue una lógica de granular
 - **Selección de modelo:** se conserva el estado con mejor accuracy de validación
 - **Reproducibilidad:** semilla 42 en `random`, `numpy` y `torch`; `cudnn.deterministic = True`
 
-### 4.3 Entorno
+### 4.3 Entorno y origen de cada resultado
 
-Python 3.12.10, PyTorch 2.14.1 (CPU), librosa 1.0.0, scikit-learn 1.9.1, scipy 1.18.1, seaborn 0.13.2, numpy 2.5.3. Toda la ejecución reportada se hizo en CPU.
+Los resultados provienen de dos corridas, ambas con semilla 42:
+
+- **Corrida local (CPU)**, con los scripts de `experimentos/`: historial de entrenamiento y figuras, test sintético, los once escenarios fuera de distribución, el barrido de semitonos y los cinco audios generados. Python 3.12.10, PyTorch 2.14.1 (CPU), librosa 1.0.0, scikit-learn 1.9.1, scipy 1.18.1, seaborn 0.13.2, numpy 2.5.3.
+- **Corrida en Google Colab (GPU Tesla T4)**, ejecutando `TP_Final_Revisado_Profe_24Keys.ipynb` desde cero: reproduce el entrenamiento y el test sintético, y produce la evaluación sobre GiantSteps y la prueba sobre el MP3 comercial. Python 3.13.15, PyTorch 2.11.0+cu130, librosa 0.11.0, scikit-learn 1.6.1, scipy 1.16.3, seaborn 0.13.2, numpy 2.1.3.
 
 ---
 
@@ -194,6 +201,8 @@ Python 3.12.10, PyTorch 2.14.1 (CPU), librosa 1.0.0, scikit-learn 1.9.1, scipy 1
 | 12 | 0,0066 | 0,999 | 0,0009 | 1,000 |
 
 ![Curvas de entrenamiento](figuras/curvas.png)
+
+La tabla y la figura corresponden a la corrida local. La corrida en Colab reproduce el mismo patrón: 99,6 % de validación en la época 1, 100 % desde la época 2 y 100 % en test.
 
 La red alcanza 99,6 % de accuracy de validación **en la primera época** y 100 % en la segunda. La pérdida de validación cae a 9×10⁻⁴. Una convergencia tan inmediata en un problema de 24 clases es, en retrospectiva, la primera señal de alarma: indica que la tarea tal como está planteada es trivial, no que el modelo sea excelente.
 
@@ -293,9 +302,50 @@ Esto es un caso de libro de **shortcut learning**: el modelo explota una regular
 
 ---
 
-## 7. Resultados sobre audio real
+## 7. Resultados fuera del conjunto sintético
 
-### 7.1 Audios de tonalidad conocida
+### 7.1 Canciones reales: GiantSteps Key (20 temas)
+
+Cada tema se predice con la CNN (voto sobre ventanas de 4 s) y con la línea de base K-S, y se compara contra la tonalidad anotada. Corrida en Colab, notebook ejecutado desde cero.
+
+| Tema | Verdad | CNN | K-S | CNN ok | K-S ok |
+|---|---|---|---|---|---|
+| 3759800 | B min | C maj | B min | ✗ | ✓ |
+| 2666332 | A maj | A maj | E maj | ✓ | ✗ |
+| 4186982 | G min | A maj | G min | ✗ | ✓ |
+| 1474122 | G# maj | B min | D# maj | ✗ | ✗ |
+| 1763782 | F# min | A maj | F# min | ✗ | ✓ |
+| 5159593 | A min | A maj | A maj | ✗ | ✗ |
+| 1880732 | D# min | A maj | D min | ✗ | ✗ |
+| 3992511 | D# min | D min | D# maj | ✗ | ✗ |
+| 923397 | A# min | D min | D# maj | ✗ | ✗ |
+| 1650933 | D# min | A maj | D# min | ✗ | ✓ |
+| 4995394 | F# min | C maj | F# min | ✗ | ✓ |
+| 3313070 | B min | A maj | G maj | ✗ | ✗ |
+| 1234752 | B min | A maj | D maj | ✗ | ✗ |
+| 1809174 | A maj | A maj | A maj | ✓ | ✓ |
+| 4476610 | D# min | D min | D# min | ✗ | ✓ |
+| 4328388 | F min | B min | F maj | ✗ | ✗ |
+| 1706844 | D# maj | A maj | D# maj | ✗ | ✓ |
+| 3377323 | F min | C maj | F maj | ✗ | ✗ |
+| 1837440 | B min | C maj | B min | ✗ | ✓ |
+| 61415 | F min | A maj | F maj | ✗ | ✗ |
+
+| Métrica (n = 20) | CNN 1D | Baseline K-S |
+|---|---|---|
+| Accuracy (24 clases) | **0,10** (2/20) | **0,45** (9/20) |
+| Score MIREX | 0,13 | 0,59 |
+| Accuracy de tónica (ignorando el modo) | 0,15 | 0,70 |
+| Clases distintas predichas | 4 de 24 | 11 de 24 |
+| Referencia: azar | 0,042 | 0,042 |
+
+**Nota sobre el MIREX.** La celda del notebook imprime `CNN mirex 0.13 · K-S mirex 0.54`. El valor de K-S está mal calculado ahí: esa celda llama a `mirex(predicción, verdad)` en lugar de `mirex(verdad, predicción)`, y como la regla de la quinta no es simétrica, pierde el crédito parcial de dos temas (`A maj` predicho como `E maj` y `G# maj` predicho como `D# maj`, ambos a una quinta). Recalculado con los argumentos en el orden correcto sobre las mismas predicciones, el K-S da 0,59. La accuracy no cambia y el MIREX de la CNN tampoco.
+
+**Lectura.** Es la medición más importante del trabajo, porque es la única sobre música real con tonalidad anotada por terceros, y confirma el diagnóstico de la sección 6. La CNN no está leyendo la canción: responde `A maj` en 11 de los 20 temas y usa apenas 4 clases (`A maj`, `C maj`, `D min`, `B min`). Sus dos aciertos son temas cuya tonalidad verdadera es justamente `A maj`, es decir, coincidencias con su respuesta por defecto. Es el mismo colapso a unos pocos atractores observado al transponer una octava (sección 6.4). La línea de base, en cambio, reparte sus predicciones entre 11 clases y acierta 9 temas; cuando falla, suele quedar cerca: en 14 de los 20 temas identifica bien la tónica, y 8 de sus 11 errores son de quinta, de relativa o de modo cambiado, que el MIREX premia parcialmente. De los 18 errores de la CNN, solo 2 reciben crédito parcial.
+
+Con 20 temas el margen de error es grande (un tema equivale a 5 puntos de accuracy), pero la diferencia, 2 contra 9 aciertos, es demasiado amplia para atribuirla al azar del muestreo.
+
+### 7.2 Audios generados de control
 
 | Archivo | Verdad | CNN (conf.) | K-S (r) | CNN ok | K-S ok |
 |---|---|---|---|---|---|
@@ -310,16 +360,16 @@ La CNN acierta los cuatro audios cuyo formato coincide con el del entrenamiento 
 
 El caso es doblemente significativo porque **el blues es precisamente el género de la aplicación**. El sistema falla en su caso de uso central. Y es coherente con el diagnóstico: el bajo en registro grave desplaza la energía fuera de la banda donde la red aprendió a buscar `A`.
 
-### 7.2 MP3 comercial
+### 7.3 MP3 comercial
 
-Sobre *Pappo – Buscando un Amor*:
+Sobre *Pappo – Buscando un Amor* (154,8 s, 39 ventanas de 4 s), corrida en Colab:
 
-- **CNN:** `A min`, confianza **0,236**. Top-3: `A min` (0,236), `F maj` (0,129), `A# maj` (0,113).
-- **K-S:** `E min`, `r = 0,684`.
+- **CNN:** `A maj`, confianza **0,245**. Top-3: `A maj` (0,245), `A min` (0,082), `A# maj` (0,066).
+- **K-S:** `E min`, `r = 0,68`.
 
-Sin anotación de referencia verificada no se puede declarar un ganador, pero la confianza de 0,236 de la red es informativa: con una distribución casi plana entre las tres primeras clases, el modelo está indicando que no sabe. La música real tiene batería, voz, guitarras distorsionadas y reverberación, nada de lo cual existe en el conjunto sintético. Es el comportamiento esperable de un modelo operando muy lejos de su distribución de entrenamiento, y la baja confianza es, al menos, una señal honesta y aprovechable como criterio de rechazo.
+Sin anotación de referencia verificada no se puede declarar un ganador. Además, `A maj` es la respuesta por defecto de la red (sección 7.1), así que la predicción no aporta evidencia sobre la canción. Lo informativo es la confianza: la clase más probable apenas recibe 0,245 y el resto de la probabilidad queda repartido entre muchas clases, es decir, el modelo está indicando que no sabe. La música real tiene batería, voz, guitarras distorsionadas y reverberación, nada de lo cual existe en el conjunto sintético. Es el comportamiento esperable de un modelo operando muy lejos de su distribución de entrenamiento, y la baja confianza es, al menos, una señal honesta y aprovechable como criterio de rechazo.
 
-### 7.3 Cadena completa de aplicación
+### 7.4 Cadena completa de aplicación
 
 A modo de demostración del producto final, para el audio `test_G_maj`:
 
@@ -351,7 +401,7 @@ La derivación `G → C` es exacta por construcción: una vez acertada la tónic
 
 **¿Aportó valor la red neuronal frente al método clásico?** Para esta tarea y con este diseño, **no**.
 
-El balance consolidado es: empate en test sintético (1,000 contra 1,000, benchmark saturado y por tanto no informativo); ventaja de la CNN en generalización a progresiones armónicas nuevas (92,5–100 % contra 50 %); ventaja decisiva de la línea de base en invariancia a octava (100 % contra 4,2 %); y ventaja de la línea de base en audio real (5/5 contra 4/5).
+El balance consolidado es: empate en test sintético (1,000 contra 1,000, benchmark saturado y por tanto no informativo); ventaja de la CNN en generalización a progresiones armónicas nuevas (92,5–100 % contra 50 %); ventaja decisiva de la línea de base en invariancia a octava (100 % contra 4,2 %); ventaja de la línea de base en canciones reales anotadas de GiantSteps (9/20 contra 2/20); y ventaja de la línea de base en los audios generados de control (5/5 contra 4/5).
 
 El único eje donde la red gana es real pero no compensa un fallo que la vuelve inutilizable ante una transformación musicalmente irrelevante.
 
@@ -374,7 +424,7 @@ De aquí la lección metodológica central del trabajo: el diseño del conjunto 
 - **Ventana de 4 s:** no capta modulaciones; una canción que cambia de tonalidad se evalúa por fragmentos sin integración global. Además, el `AdaptiveAvgPool1d(1)` promedia el eje temporal dentro de cada ventana, de modo que el modelo pierde el orden de los acordes y con él la información de cadencia. La propuesta 7 de la sección 9 plantea —como hipótesis no verificada— sustituir ese promediado por una capa recurrente.
 - **Ambigüedad mayor/menor en blues:** el blues mezcla la tercera mayor y menor por diseño estético, por lo que `A maj` y `A min` son parcialmente ambiguos en el género. Esto motiva reportar Top-3 y MIREX en lugar de solo accuracy.
 - **Brecha de dominio sintético-real:** sin percusión, voz, distorsión ni reverberación en el entrenamiento, el audio comercial queda fuera de distribución.
-- **Volumen de evaluación real:** cinco audios versionados son pocos para conclusiones estadísticas robustas; la evaluación sobre GiantSteps está implementada pero su ejecución depende de la disponibilidad del espejo.
+- **Volumen de evaluación real:** 20 de los 604 temas de GiantSteps alcanzan para ver una diferencia grande (2 contra 9 aciertos), pero no para estimar las accuracies con precisión; cada tema mueve 5 puntos. Además, GiantSteps es música electrónica, no blues, que es el género de la aplicación. Los cinco audios versionados son generados por programa y no cuentan como música real.
 
 ---
 
@@ -388,7 +438,7 @@ Las propuestas se ordenan por relación entre impacto esperado y esfuerzo, y ata
 
 **3. Representación invariante a transposición (impacto alto, esfuerzo medio).** Reemplazar la entrada de onda cruda por CQT o log-mel y usar una CNN 2D. Sobre una CQT, una transposición es una traslación del eje de frecuencia, y una convolución 2D es equivariante a traslaciones: la invariancia se obtiene por arquitectura en lugar de tener que aprenderse. Equivale a darle al modelo el sesgo inductivo que hace funcionar al cromagrama, conservando la capacidad de aprender.
 
-**4. Evaluación sistemática en GiantSteps (impacto alto, esfuerzo medio).** Correr el protocolo completo sobre los 604 temas anotados y reportar accuracy y MIREX contra la línea de base, lo que daría una medición sólida sobre música real.
+**4. Ampliar la evaluación en GiantSteps (impacto alto, esfuerzo medio).** Pasar de los 20 temas actuales a los 604 anotados y reportar accuracy y MIREX contra la línea de base con intervalos de confianza, lo que daría una medición sólida sobre música real. Sumar un conjunto anotado de blues acercaría la evaluación al caso de uso.
 
 **5. Entrenar con audio real o con mezclas más ricas (impacto medio-alto, esfuerzo alto).** Incorporar percusión, voz, distorsión y reverberación, o directamente entrenar sobre GiantSteps con validación cruzada.
 
@@ -417,7 +467,7 @@ El resultado medido sobre el test sintético es 100 % de accuracy y MIREX 1,000.
 
 La evaluación fuera de distribución revela el verdadero comportamiento del modelo. La CNN generaliza mejor que el método clásico a progresiones armónicas nuevas (92,5–100 % contra 50 %), pero colapsa a 4,2 % —el nivel del azar— ante una transposición de octava, condición en la que la línea de base conserva 100 %. El diagnóstico por barrido de semitonos identifica el mecanismo con precisión: al desplazar el audio un semitono, la red predice la etiqueta transpuesta en el 91,7 % de los casos y la correcta en el 0 %. **La red aprendió a detectar altura absoluta, no tonalidad.** La causa es que el generador sintético ubicaba cada tonalidad siempre en el mismo registro, haciendo que ambos conceptos fueran indistinguibles en los datos.
 
-Sobre audio real la línea de base también se impone (5/5 contra 4/5), y la CNN falla justamente en el blues de 12 compases, el caso de uso central de la aplicación.
+Sobre canciones reales la línea de base también se impone: en 20 temas anotados de GiantSteps acierta 9 contra 2 de la red (45 % contra 10 %), y la red responde `A maj` en 11 de los 20 sin importar la canción, el mismo colapso observado al transponer. En los audios generados de control la CNN falla justamente en el blues de 12 compases, el caso de uso central de la aplicación.
 
 La respuesta a la pregunta que fijó la cátedra es, por lo tanto, negativa y está respaldada por evidencia: con este diseño la red no superó a la línea de base. El valor del trabajo está en haberlo detectado, medido y explicado en lugar de reportar el 100 % inicial. El factor determinante fue el diseño del conjunto de datos y del protocolo de evaluación, no la arquitectura, y las correcciones propuestas —randomizar el registro, aumentar con pitch-shift y migrar a una representación CQT con convoluciones 2D— se derivan directamente del diagnóstico y son verificables.
 
@@ -448,11 +498,14 @@ python experimentos/run_robustez.py       # 11 escenarios fuera de distribución
 python experimentos/run_diagnostico.py    # barrido de semitonos
 ```
 
-Salidas en `experimentos/resultados/`: `metricas.json`, `robustez.json`, `diagnostico.json`, `curvas.png`, `matriz_confusion.png`, `robustez.png`, `diagnostico_octava.png`, `cnn_vs_ks.csv`, `keycnn1d_best.pt`.
+Salidas en `experimentos/resultados/`: `metricas.json`, `robustez.json`, `diagnostico.json`, `curvas.png`, `matriz_confusion.png`, `robustez.png`, `diagnostico_octava.png`, `cnn_vs_ks.csv`, `keycnn1d_best.pt`. Los resultados de GiantSteps están en `giantsteps.csv` y `giantsteps.json`.
 
-Alternativamente, subir `TP_Final_Revisado_Profe_24Keys.ipynb` a Google Colab y ejecutar todo.
+La evaluación sobre GiantSteps y el MP3 comercial se obtienen subiendo `TP_Final_Revisado_Profe_24Keys.ipynb` a Google Colab y ejecutando todo.
 
-**Entorno de la corrida reportada:** Python 3.12.10, PyTorch 2.14.1+cpu, librosa 1.0.0, scikit-learn 1.9.1, scipy 1.18.1, seaborn 0.13.2, numpy 2.5.3, CPU, semilla 42.
+**Entornos de las corridas reportadas** (detalle en la sección 4.3):
+
+- Local: Python 3.12.10, PyTorch 2.14.1+cpu, librosa 1.0.0, scikit-learn 1.9.1, scipy 1.18.1, seaborn 0.13.2, numpy 2.5.3, CPU, semilla 42.
+- Colab: Python 3.13.15, PyTorch 2.11.0+cu130, librosa 0.11.0, scikit-learn 1.6.1, scipy 1.16.3, seaborn 0.13.2, numpy 2.1.3, GPU Tesla T4, semilla 42.
 
 ## Anexo B — Tabla cross-harp completa
 

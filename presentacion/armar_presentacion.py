@@ -313,7 +313,7 @@ caja(s, Cm(2), Cm(14.9), AN - Cm(4), Cm(3),
 
 # ---------------------------------------------------------------- 8. Tabla OOD
 s = nueva("Los números", "Accuracy en 24 clases · azar = 1/24 = 0,042")
-tabla(s, Cm(4.5), Cm(4.6), Cm(25), Cm(11), [
+tabla(s, Cm(4.5), Cm(4.4), Cm(25), Cm(11.4), [
     ["Escenario", "CNN 1D", "Baseline K-S"],
     ["Test sintético (en distribución)", "1,000", "1,000"],
     [("Progresión nueva I-V-vi-IV", False, None), ("0,925", True, VERDE), "0,500"],
@@ -322,11 +322,24 @@ tabla(s, Cm(4.5), Cm(4.6), Cm(25), Cm(11), [
     ["Ruido fuerte (SNR 0 dB)", "0,808", "1,000"],
     ["Afinación 432 Hz", "0,917", "0,958"],
     [("TRANSPOSICIÓN DE 1 OCTAVA", True, ROJO), ("0,042", True, ROJO), ("1,000", True, VERDE)],
-    [("Audio real (5 temas conocidos)", False, None), "0,800", ("1,000", True, VERDE)],
-], ancho_cols=[Cm(14), Cm(5.5), Cm(5.5)], size=15)
-caja(s, Cm(4.5), Cm(16.2), Cm(25), Cm(1.6),
+    [("5 audios generados (tonalidad conocida)", False, None), "0,800", ("1,000", True, VERDE)],
+    [("CANCIONES REALES: GiantSteps (20)", True, ROJO), ("0,100", True, ROJO), ("0,450", True, VERDE)],
+], ancho_cols=[Cm(14), Cm(5.5), Cm(5.5)], size=14)
+caja(s, Cm(4.5), Cm(16.3), Cm(25), Cm(1.6),
      "Una canción en C mayor sigue en C mayor una octava más arriba. La etiqueta no cambió.",
      size=16, color=GRIS, align=PP_ALIGN.CENTER)
+
+# ---------------------------------------------------------------- 8b. GiantSteps
+s = nueva("Canciones reales: GiantSteps Key",
+          "20 temas anotados al azar (semilla 7) · solo evaluación · corrida en Colab")
+tarjeta(s, Cm(3), Cm(4.6), Cm(13), Cm(5.6), "CNN 1D", "2 / 20", ROJO, "accuracy 0,10  ·  MIREX 0,13")
+tarjeta(s, Cm(17.9), Cm(4.6), Cm(13), Cm(5.6), "BASELINE K-S", "9 / 20", VERDE, "accuracy 0,45  ·  MIREX 0,59")
+vinetas(s, Cm(3), Cm(11), Cm(28), Cm(6), [
+    ("La red responde \"A maj\" en 11 de los 20 temas, sin importar la canción.", True),
+    "Usa solo 4 de las 24 clases. Sus 2 aciertos son temas que estaban en A maj.",
+    ("Es el mismo colapso a pocos atractores que aparece al transponer una octava.", True),
+    "K-S acierta la tónica en 14 de 20; casi todos sus errores son de quinta, relativa o modo.",
+], size=17, espacio=8)
 
 # ---------------------------------------------------------------- 9. Diagnóstico
 s = nueva("Diagnóstico", "¿Qué sigue la red: la tonalidad o la frecuencia absoluta?")
@@ -373,7 +386,7 @@ tarjeta(s, Cm(17.6), Cm(4.8), Cm(15.2), Cm(5.2), "2 · Randomizar la octava",
 tarjeta(s, Cm(1.6), Cm(10.8), Cm(15.2), Cm(5.2), "3 · CQT / log-mel + CNN 2D",
         "Por arquitectura", AZUL_CLARO, "Sobre CQT la transposición es traslación: la conv2D ya es equivariante")
 tarjeta(s, Cm(17.6), Cm(10.8), Cm(15.2), Cm(5.2), "4 · GiantSteps completo",
-        "604 temas", AZUL_CLARO, "Medición sólida sobre música real anotada")
+        "20 → 604 temas", AZUL_CLARO, "Medición sólida sobre música real anotada")
 
 # ---------------------------------------------------------------- 13. Cierre
 s = nueva()

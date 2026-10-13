@@ -38,9 +38,10 @@ El modelo alcanza **100 % de accuracy en el test sintético**. Ese número, solo
 | Progresión armónica nueva (`ii-V-I`) | **1,000** | 0,500 |
 | Ruido fuerte (SNR 0 dB) | 0,808 | 1,000 |
 | **Transposición de 1 octava** | **0,042** | **1,000** |
-| Audio real (5 temas de tonalidad conocida) | 0,800 | **1,000** |
+| 5 audios generados fuera del entrenamiento (tonalidad conocida) | 0,800 | **1,000** |
+| **Canciones reales: GiantSteps Key (20 temas)** | **0,100** | **0,450** |
 
-La CNN **colapsa al nivel del azar (1/24 = 0,042) ante un cambio de octava**, mientras el método clásico no se inmuta.
+La CNN **colapsa al nivel del azar (1/24 = 0,042) ante un cambio de octava**, mientras el método clásico no se inmuta. En **canciones reales** pasa lo mismo: sobre 20 temas de GiantSteps la red acierta 2 de 20 y el método clásico 9 de 20. En 11 de los 20 temas la red responde `A maj`, sin importar la canción.
 
 El diagnóstico por barrido de semitonos explica por qué: al desplazar el audio **un semitono**, la red predice la etiqueta *transpuesta* el **91,7 %** de las veces y la correcta el **0 %**.
 
@@ -70,10 +71,10 @@ La causa no fue la arquitectura: fue el conjunto de datos. El generador sintéti
 │   ├── run_experimentos.py          ← entrenamiento + test + audio real
 │   ├── run_robustez.py              ← 11 escenarios fuera de distribución
 │   ├── run_diagnostico.py           ← barrido de semitonos (el hallazgo)
-│   └── resultados/                  ← métricas .json, figuras .png, modelo .pt
+│   └── resultados/                  ← métricas .json, figuras .png, modelo .pt, giantsteps.csv/.json
 ├── TP_Final_Revisado_Profe_24Keys.ipynb   ← notebook principal (Colab)
 ├── TP_Final_Armonica_Blues_CNN1D.ipynb    ← primera versión (12 notas), antecedente
-├── audios_prueba_final/             ← 5 audios de tonalidad conocida + MANIFEST
+├── audios_prueba_final/             ← 5 audios generados de tonalidad conocida + MANIFEST
 └── requirements.txt
 ```
 
@@ -128,7 +129,9 @@ Kernel inicial ancho (128 muestras ≈ 8 ms) para capturar periodicidad; `Adapti
 ### Datos
 
 - **Sintético (entrena):** progresiones `I-IV-V⁷-I` (mayor) / `i-iv-V⁷-i` (menor), 4 s @16 kHz, 3 armónicos + envolvente + micro-desafinación + ruido SNR 12–25 dB, generadas *on-the-fly*. `train 1920 / val 480 / test 480`, balanceado en 24 clases.
-- **Real (solo evalúa):** `audios_prueba_final/` (5 temas de tonalidad conocida) + un MP3 comercial + descarga opcional de [GiantSteps Key](https://github.com/GiantSteps/giantsteps-key-dataset) (604 previews, Knees et al. ISMIR 2015, verificación md5). Los MP3 descargados no se versionan.
+- **Canciones reales (solo evalúa):** [GiantSteps Key](https://github.com/GiantSteps/giantsteps-key-dataset) (604 fragmentos de 2 min de música electrónica de Beatport, tonalidad anotada en 24 clases, Knees et al. ISMIR 2015). El repositorio de anotaciones no declara licencia y los audios son previews de Beatport, por eso no se redistribuyen. El notebook baja 20 temas al azar (semilla 7) y verifica cada MP3 con md5. Los MP3 no se versionan; los resultados por tema están en `experimentos/resultados/giantsteps.csv` y `giantsteps.json`.
+- **Audios generados de control (solo evalúa):** `audios_prueba_final/` contiene 5 audios **sintetizados por programa** (4 progresiones y un blues de 12 compases) con tonalidad conocida. No son grabaciones reales: sirven para probar la cadena completa con formatos distintos al de entrenamiento.
+- **MP3 comercial:** *Pappo – Buscando un Amor*, como demostración, sin tonalidad anotada.
 
 ### Métricas
 
@@ -162,7 +165,7 @@ Técnica, sin teoría: **soplar** (echar aire), **aspirar** (tomar aire), **bend
 - **Transposición:** limitación principal, cuantificada arriba. La red no es invariante a la octava.
 - **Ventana de 4 s:** no capta modulaciones dentro de un tema.
 - **Blues mezcla mayor y menor** por diseño estético → `A maj` y `A min` son parcialmente ambiguos; por eso se reporta Top-3 y MIREX.
-- **Brecha sintético → real:** sin batería, voz ni distorsión en el entrenamiento, el audio comercial queda fuera de distribución (confianza 0,236 en el MP3 de prueba).
+- **Brecha sintético → real:** sin batería, voz ni distorsión en el entrenamiento, el audio comercial queda fuera de distribución (confianza 0,245 en el MP3 de prueba).
 
 ## Trabajo futuro
 
@@ -171,15 +174,20 @@ Ordenado por impacto sobre la causa raíz identificada:
 1. **Aumentación por pitch-shift** actualizando la etiqueta — rompe la correlación espuria entre tonalidad y altura absoluta.
 2. **Randomizar la octava en el generador** — dos líneas de código, elimina el sesgo en el origen.
 3. **Migrar a CQT/log-mel + CNN 2D** — sobre una CQT la transposición es una traslación, y la convolución 2D es equivariante a traslaciones: da por arquitectura la invariancia que hoy falta.
-4. **Evaluación sistemática sobre los 604 temas de GiantSteps.**
+4. **Ampliar la evaluación de GiantSteps de 20 a los 604 temas**, para tener números con menos margen de error.
 
 ---
 
 ## Entorno
 
-Python 3.12.10 · PyTorch 2.14.1 · librosa 1.0.0 · scikit-learn 1.9.1 · scipy 1.18.1 · seaborn 0.13.2 · numpy 2.5.3
+Los resultados salen de dos corridas, ambas con semilla fija `42` (`random`, `numpy`, `torch`, `cudnn.deterministic`):
 
-Semilla fija `42` (`random`, `numpy`, `torch`, `cudnn.deterministic`). Toda la corrida reportada se hizo en **CPU**.
+| Corrida | Qué produce | Entorno |
+|---|---|---|
+| **Local, CPU** (`experimentos/`) | entrenamiento, test sintético, 11 escenarios OOD, barrido de semitonos, 5 audios generados | Python 3.12.10 · PyTorch 2.14.1 · librosa 1.0.0 · scikit-learn 1.9.1 · scipy 1.18.1 · numpy 2.5.3 |
+| **Google Colab, GPU T4** (notebook desde cero) | reproduce entrenamiento y test sintético; **GiantSteps** y MP3 comercial | Python 3.13.15 · PyTorch 2.11.0 · librosa 0.11.0 · scikit-learn 1.6.1 · scipy 1.16.3 · numpy 2.1.3 |
+
+**Sobre el MIREX de GiantSteps:** el notebook imprime `K-S mirex 0.54`; el valor correcto es **0,59**. Esa celda llama a `mirex(predicción, verdad)` con los argumentos invertidos y pierde el crédito de quinta en dos temas. `giantsteps.json` trae el valor recalculado sobre las mismas predicciones; la accuracy no cambia.
 
 ## Referencias
 

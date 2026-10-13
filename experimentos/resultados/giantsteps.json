@@ -1,0 +1,227 @@
+{
+  "dataset": "GiantSteps Key (Knees et al., ISMIR 2015)",
+  "seleccion": "20 temas al azar, random.Random(7).sample sobre los 604 ids; MP3 verificados por md5 (20/20 OK)",
+  "uso": "solo evaluacion, no se entrena con estos temas",
+  "corrida": {
+    "origen": "TP_Final_Revisado_Profe_24Keys.ipynb ejecutado en Google Colab",
+    "hardware": "GPU Tesla T4",
+    "python": "3.13.15",
+    "torch": "2.11.0+cu130",
+    "librosa": "0.11.0",
+    "numpy": "2.1.3",
+    "semilla": 42
+  },
+  "resumen": {
+    "n": 20,
+    "cnn_acc": 0.1,
+    "ks_acc": 0.45,
+    "cnn_mirex": 0.13,
+    "ks_mirex": 0.59,
+    "cnn_acc_tonica": 0.15,
+    "ks_acc_tonica": 0.7,
+    "azar": 0.042
+  },
+  "nota_mirex": "MIREX recalculado como mirex(verdad, prediccion). La salida impresa por el notebook (CNN 0.13, K-S 0.54) llamaba la funcion con los argumentos invertidos; la accuracy no cambia.",
+  "temas": [
+    {
+      "tema": "3759800.LOFI.mp3",
+      "verdad": "B min",
+      "cnn": "C maj",
+      "ks": "B min",
+      "cnn_ok": 0,
+      "ks_ok": 1,
+      "cnn_mirex": 0.0,
+      "ks_mirex": 1.0
+    },
+    {
+      "tema": "2666332.LOFI.mp3",
+      "verdad": "A maj",
+      "cnn": "A maj",
+      "ks": "E maj",
+      "cnn_ok": 1,
+      "ks_ok": 0,
+      "cnn_mirex": 1.0,
+      "ks_mirex": 0.5
+    },
+    {
+      "tema": "4186982.LOFI.mp3",
+      "verdad": "G min",
+      "cnn": "A maj",
+      "ks": "G min",
+      "cnn_ok": 0,
+      "ks_ok": 1,
+      "cnn_mirex": 0.0,
+      "ks_mirex": 1.0
+    },
+    {
+      "tema": "1474122.LOFI.mp3",
+      "verdad": "G# maj",
+      "cnn": "B min",
+      "ks": "D# maj",
+      "cnn_ok": 0,
+      "ks_ok": 0,
+      "cnn_mirex": 0.0,
+      "ks_mirex": 0.5
+    },
+    {
+      "tema": "1763782.LOFI.mp3",
+      "verdad": "F# min",
+      "cnn": "A maj",
+      "ks": "F# min",
+      "cnn_ok": 0,
+      "ks_ok": 1,
+      "cnn_mirex": 0.3,
+      "ks_mirex": 1.0
+    },
+    {
+      "tema": "5159593.LOFI.mp3",
+      "verdad": "A min",
+      "cnn": "A maj",
+      "ks": "A maj",
+      "cnn_ok": 0,
+      "ks_ok": 0,
+      "cnn_mirex": 0.3,
+      "ks_mirex": 0.3
+    },
+    {
+      "tema": "1880732.LOFI.mp3",
+      "verdad": "D# min",
+      "cnn": "A maj",
+      "ks": "D min",
+      "cnn_ok": 0,
+      "ks_ok": 0,
+      "cnn_mirex": 0.0,
+      "ks_mirex": 0.0
+    },
+    {
+      "tema": "3992511.LOFI.mp3",
+      "verdad": "D# min",
+      "cnn": "D min",
+      "ks": "D# maj",
+      "cnn_ok": 0,
+      "ks_ok": 0,
+      "cnn_mirex": 0.0,
+      "ks_mirex": 0.3
+    },
+    {
+      "tema": "923397.LOFI.mp3",
+      "verdad": "A# min",
+      "cnn": "D min",
+      "ks": "D# maj",
+      "cnn_ok": 0,
+      "ks_ok": 0,
+      "cnn_mirex": 0.0,
+      "ks_mirex": 0.0
+    },
+    {
+      "tema": "1650933.LOFI.mp3",
+      "verdad": "D# min",
+      "cnn": "A maj",
+      "ks": "D# min",
+      "cnn_ok": 0,
+      "ks_ok": 1,
+      "cnn_mirex": 0.0,
+      "ks_mirex": 1.0
+    },
+    {
+      "tema": "4995394.LOFI.mp3",
+      "verdad": "F# min",
+      "cnn": "C maj",
+      "ks": "F# min",
+      "cnn_ok": 0,
+      "ks_ok": 1,
+      "cnn_mirex": 0.0,
+      "ks_mirex": 1.0
+    },
+    {
+      "tema": "3313070.LOFI.mp3",
+      "verdad": "B min",
+      "cnn": "A maj",
+      "ks": "G maj",
+      "cnn_ok": 0,
+      "ks_ok": 0,
+      "cnn_mirex": 0.0,
+      "ks_mirex": 0.0
+    },
+    {
+      "tema": "1234752.LOFI.mp3",
+      "verdad": "B min",
+      "cnn": "A maj",
+      "ks": "D maj",
+      "cnn_ok": 0,
+      "ks_ok": 0,
+      "cnn_mirex": 0.0,
+      "ks_mirex": 0.3
+    },
+    {
+      "tema": "1809174.LOFI.mp3",
+      "verdad": "A maj",
+      "cnn": "A maj",
+      "ks": "A maj",
+      "cnn_ok": 1,
+      "ks_ok": 1,
+      "cnn_mirex": 1.0,
+      "ks_mirex": 1.0
+    },
+    {
+      "tema": "4476610.LOFI.mp3",
+      "verdad": "D# min",
+      "cnn": "D min",
+      "ks": "D# min",
+      "cnn_ok": 0,
+      "ks_ok": 1,
+      "cnn_mirex": 0.0,
+      "ks_mirex": 1.0
+    },
+    {
+      "tema": "4328388.LOFI.mp3",
+      "verdad": "F min",
+      "cnn": "B min",
+      "ks": "F maj",
+      "cnn_ok": 0,
+      "ks_ok": 0,
+      "cnn_mirex": 0.0,
+      "ks_mirex": 0.3
+    },
+    {
+      "tema": "1706844.LOFI.mp3",
+      "verdad": "D# maj",
+      "cnn": "A maj",
+      "ks": "D# maj",
+      "cnn_ok": 0,
+      "ks_ok": 1,
+      "cnn_mirex": 0.0,
+      "ks_mirex": 1.0
+    },
+    {
+      "tema": "3377323.LOFI.mp3",
+      "verdad": "F min",
+      "cnn": "C maj",
+      "ks": "F maj",
+      "cnn_ok": 0,
+      "ks_ok": 0,
+      "cnn_mirex": 0.0,
+      "ks_mirex": 0.3
+    },
+    {
+      "tema": "1837440.LOFI.mp3",
+      "verdad": "B min",
+      "cnn": "C maj",
+      "ks": "B min",
+      "cnn_ok": 0,
+      "ks_ok": 1,
+      "cnn_mirex": 0.0,
+      "ks_mirex": 1.0
+    },
+    {
+      "tema": "61415.LOFI.mp3",
+      "verdad": "F min",
+      "cnn": "A maj",
+      "ks": "F maj",
+      "cnn_ok": 0,
+      "ks_ok": 0,
+      "cnn_mirex": 0.0,
+      "ks_mirex": 0.3
+    }
+  ]
+}
