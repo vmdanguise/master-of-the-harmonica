@@ -7,7 +7,7 @@
 [![Python](https://img.shields.io/badge/Python-3.12-blue)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.14-ee4c2c)](https://pytorch.org/)
 [![Colab](https://img.shields.io/badge/Colab-ejecutable-f9ab00)](https://colab.research.google.com/)
-[![Informe](https://img.shields.io/badge/Informe-PDF-success)](informe/informe.pdf)
+[![Informe](https://img.shields.io/badge/Informe-PDF-success)](informe/informe_tp_final_redes_neuronales.pdf)
 
 ---
 
@@ -48,7 +48,7 @@ El diagnóstico por barrido de semitonos explica por qué: al desplazar el audio
 
 La causa no fue la arquitectura: fue el conjunto de datos. El generador sintético ubicaba cada tonalidad siempre en el mismo registro, lo que volvió "tonalidad" y "frecuencia absoluta" indistinguibles. El modelo tomó el atajo (*shortcut learning*) y el test, generado con el mismo sesgo, no podía detectarlo.
 
-**Conclusión honesta: para esta tarea y con este diseño, la red no superó a la línea de base.** El valor del trabajo está en haberlo detectado, medido y explicado. El análisis completo y las correcciones propuestas están en el **[informe](informe/informe.pdf)**.
+**Conclusión honesta: para esta tarea y con este diseño, la red no superó a la línea de base.** El valor del trabajo está en haberlo detectado, medido y explicado. El análisis completo y las correcciones propuestas están en el **[informe](informe/informe_tp_final_redes_neuronales.pdf)**.
 
 <p align="center">
   <img src="informe/figuras/robustez.png" width="85%" alt="Robustez fuera de distribución">
@@ -60,8 +60,8 @@ La causa no fue la arquitectura: fue el conjunto de datos. El generador sintéti
 
 ```
 ├── informe/
-│   ├── informe.pdf                  ← informe completo (15 pág.)
-│   ├── informe.md                   ← fuente en Markdown
+│   ├── informe_tp_final_redes_neuronales.pdf                  ← informe completo (15 pág.)
+│   ├── informe_tp_final_redes_neuronales.md                   ← fuente en Markdown
 │   ├── md_a_pdf.py                  ← generador del PDF
 │   └── figuras/                     ← figuras del informe
 ├── presentacion/

@@ -1,4 +1,4 @@
-"""Convierte informe/informe.md en informe/informe.pdf con ReportLab.
+"""Convierte informe/informe_tp_final_redes_neuronales.md en su PDF con ReportLab.
 
 Soporta el subconjunto de Markdown usado en el informe: titulos, parrafos,
 negrita/cursiva/codigo inline, listas numeradas y con guion, tablas con pipes,
@@ -17,8 +17,8 @@ from reportlab.platypus import (BaseDocTemplate, Frame, Image, KeepTogether,
                                 Paragraph, Preformatted, Spacer, Table, TableStyle)
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-MD = os.path.join(BASE, "informe.md")
-PDF = os.path.join(BASE, "informe.pdf")
+MD = os.path.join(BASE, "informe_tp_final_redes_neuronales.md")
+PDF = os.path.join(BASE, "informe_tp_final_redes_neuronales.pdf")
 
 AZUL = colors.HexColor("#1F3864")
 AZUL_CLARO = colors.HexColor("#2E5C9A")
