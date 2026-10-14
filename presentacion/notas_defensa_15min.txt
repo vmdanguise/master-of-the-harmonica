@@ -1,0 +1,80 @@
+NOTAS DEFENSA 15 MIN - MASTER OF THE HARMONICA
+Total: ~15 min = ~35 seg por slide. Si te quedas corto, estira slides 13,18,21,25.
+
+SLIDE 1 - TITULO (30s)
+Soy V.M. Danguise, Maestria IA UP. Problema concreto: entra audio, sale que armonica agarrar.
+Pipeline: audio -> CNN 1D 24 clases -> regla +5 -> armonica + riff.
+Aviso: el hallazgo es que la red NO supero al baseline, y eso es el valor del trabajo.
+
+SLIDES 2-4 - HISTORIA (90s)
+No alargues. Remate: queria tocar de verdad, SUNO genera pero no te pone el instrumento en la boca. Por eso volvi a lo fisico: si el sonido es una secuencia, lo puedo clasificar.
+Frase puente: "esa frustracion se volvio pregunta tecnica: puedo estimar tonalidad desde onda cruda?"
+
+SLIDES 5-8 - MOTIVACION TECNICA (90s)
+Descubri CNN en otra materia, aca entendi que audio 16kHz es serie temporal.
+Elegi el camino mas simple a proposito: CNN 1D desde cero, sin transfer, sin espectrograma, para entender la materia.
+Entrada y salida segun revision de catedra: WAV/MP3 mono 16k ventanas 4s, salida 24 clases (12 tonicas x mayor/menor). La armonica NO la aprende la red.
+
+SLIDE 9 - QUE ES CNN 1D (60s)
+Conv1D trata el audio como vector de amplitudes. El kernel es un filtro adaptativo que se desliza en tiempo. Stride y pooling dan invariancia temporal.
+Aclara: imagen de cronograma no musical es a proposito, muestra que sirve para cualquier serie.
+
+SLIDE 10 - ENTRADA (60s)
+Ventanas 4s = 64000 floats en [-1,1], normalizado por pico. Detalle clave: a la red NO entra MIDI ni cromagrama, entra onda cruda.
+Dataset: sintetico propio, progresiones I-IV-V-I / i-iv-V-i, 3 armonicos + envolvente + ruido SNR 12-25dB. Train 1920 / val 480 / test 480, balanceado. 12 notas x 2 modos = 24. Lista: C C# D D# E F F# G G# A A# B.
+
+SLIDE 11 - KERNEL (60s)
+KeyCNN1D en TP_Final_Revisado_Profe_24Keys.py:147. b1 kernel 128 stride 8, luego 16/7/5.
+128 muestras a 16kHz = 8ms: ventana ancha para captar graves sin FFT. Despues kernels chicos para armonicos y timbre.
+Stride 8 = avanza de a 8, comprime x8.
+
+SLIDE 12 - PROCESO (40s)
+En cada posicion: multiplica elemento a elemento y suma = un valor. Repite 8000 veces. Donde la onda se parece a lo que busca, activa alto.
+
+SLIDE 13 - FEATURE MAP (60s, IMPORTANTE)
+Aca NO sale la nota todavia. Salen 16/32/64/128 mini-senales que ya no son sonido, son periodicidades detectadas.
+La decision recien aparece al final despues del GAP + lineal a 24. Si te preguntan: b4 da (128,31), GAP lo promedia a 128 numeros, head vota tonalidad.
+
+SLIDE 14 - ACTIVACION Y POOLING (50s)
+ReLU despues de cada conv + BN: no-linealidad barata, deja solo lo positivo.
+MaxPool1d(4) = se queda con el maximo cada 4, tira 3. Tres funciones: pico fuerte, invariancia a micro-corrimientos, comprimir 64000->31 para que entre en Colab free.
+
+SLIDE 15 - APRENDIZAJE (50s)
+Filtros fijos vs aprendidos: torch.nn.Conv1d ya trae forward/backward, nosotros solo elegimos tamanos. Adam ajusta los 80.968 pesos.
+CrossEntropy mide error multiclase (-log p_real). Adam corrige pesos con momentos + correccion de sesgo m/(1-b1^t). lr 1e-3.
+
+SLIDE 16 - 12 EPOCHS (40s)
+Porque a epoca 2 val ya es 1.0. Mas epocas = mas tiempo CPU y mas memorizacion del sintetico, cero ganancia. Guardamos best_val.
+
+SLIDES 17-19 - CURVAS (90s, HONESTIDAD)
+Matriz 24x24 diagonal perfecta, loss 2.2->0, acc 0.5->1.0 en 2 epocas. Parece perfecto y ES ENGANOSO.
+Frase: "si me quedaba aca, mentia. Test saturado: K-S sin redes tambien da 1.0, no discrimina."
+Esto motivo robustez OOD.
+
+SLIDE 20 - K-S BASELINE (50s)
+Krumhansl-Schmuckler 1982: cromagrama CQT de 12 bins promediado, correlacion Pearson contra 24 perfiles rotados MAJ/MIN. Gana mayor r. Sin redes. Si la CNN no lo supera, no agrego valor.
+
+SLIDE 21 - OCTAVA (60s, HALLAZGO)
+Funciona mientras no cambies de octava. Tabla: base 1.0, progresiones nuevas 0.92/1.0, timbre 0.9-1.0, ruido 0dB 0.8, pero +1 octava 0.042 = azar.
+Diagnostico ±1 semitono sigue etiqueta transpuesta 0.91 (detecta pitch absoluto), ±12 colapsa. Conclusion: aprendio altura absoluta, no tonalidad. Causa: generador con rf fijo BASE_F/2.0, tonalidad y registro indistinguibles. Fix: rf random 0.25/0.5/1.0 o pitch-shift con etiqueta.
+
+SLIDE 22 - MP3 REAL (60s)
+librosa.load mono 16k, ventanas 4s norm 0.95, 6 ventanas en temas largos, softmax promedio + Top-3, K-S en paralelo, regla +5.
+Enfatiza: inferencia por voto, no por un solo chunk.
+
+SLIDE 23 - SOFTMAX/ARGMAX (40s)
+Softmax por ventana = 24 probs que suman 1. Promedio 6 ventanas. Argmax = indice del maximo = ganadora. Reportamos conf + Top-3 porque blues mezcla mayor/menor.
+
+SLIDE 24 - RIFF (40s)
+Riff NO es IA, es fijo 2da posicion celdas 2-4, casa 2 aspirando: 2asp-3asp+bend-4asp-4sopl-4asp-3bend-2asp. Remera negra: siempre queda bien. La IA solo decide que armonica agarrar.
+
+SLIDE 25-26 - PAPPO + CIERRE (90s)
+Pappo 154s 39 ventanas. CNN A maj/min conf 0.24, K-S E min r 0.68.
+Aclaracion web: tusacordes dice ARMONICA en A, eso implica CANCION en E (E+5=A). K-S da E, pega. CNN da A con conf bajisima = fuera de distribucion (bateria, voz, distorsion no estaban en train).
+Cierre: para esta tarea y diseno, la red no supero al clasico. Valor: detectarlo, medirlo, explicarlo. Futuro: pitch-shift, octava random, CQT+CNN2D, GiantSteps 20->604.
+Agradece y abre preguntas.
+
+PREGUNTAS ESPERADAS (30s reserva)
+- Por que 24? Tonalidad = tonica+modo, no nota aislada.
+- Por que CNN1D y no mel+CNN2D? Para aprender sin FFT y correr en free; CQT es trabajo futuro porque transposicion = traslacion.
+- Por que falla octava? Shortcut learning, Geirhos 2020.

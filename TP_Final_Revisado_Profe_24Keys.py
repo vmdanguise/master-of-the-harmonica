@@ -356,12 +356,16 @@ else:  # si no hubo descarga de GiantSteps
 # ## PASO 10 — As de la Armónica
 # ==========================================================
 
-h,riff=recomendar(ton_cnn)  # pide armonica y riff para la tonica
+h,riff_pro=recomendar(ton_cnn)  # pide armonica y riff actual para la tonica
+riff_facil=["celda 2 aspirando (casa)","celda 4 soplando"]  # super facil: 2 notas, solo aspirar/soplar
+riff_medio=["celda 2 aspirando (casa)","celda 3 aspirando con bending (lloradito)","celda 4 aspirando","celda 4 soplando"]  # intermedio: suma bending
 print("="*52); print("   EL AS DE LA ARMONICA"); print("="*52)  # dibuja el marco del informe final
 print(f"Tonalidad CNN : {cnn_lab} (conf {cnn_c:.2f})")  # muestra tonalidad y confianza del modelo
 print(f"Baseline K-S  : {ks_lab} (r={ks_r:.2f})")  # muestra baseline y su correlacion
 print(f"Agarra         : ARMONICA EN {h}  (cancion {ton_cnn} +5 semitonos)")  # indica la armonica con la regla mas 5
-for i,p in enumerate(riff,1): print(f"   {i}. {p}")  # lista los pasos del riff en orden
+print(" [1] FACIL 2 notas:"); [print(f"   {i}. {p}") for i,p in enumerate(riff_facil,1)]  # super facil alterna 2 y 4
+print(" [2] INTERMEDIO:"); [print(f"   {i}. {p}") for i,p in enumerate(riff_medio,1)]  # suma bending en 3
+print(" [3] RECOMENDADO:"); [print(f"   {i}. {p}") for i,p in enumerate(riff_pro,1)]  # fraseo completo actual
 print("Tip: casa = celda 2 aspirando."); print("="*52)  # consejo final y cierre del marco
 
 
